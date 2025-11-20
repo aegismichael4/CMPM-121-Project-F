@@ -61,7 +61,7 @@ const MainScene = () => {
   scene.add(meshC_0, meshC_1, meshC_2)
 
   // add 2d text
-  const text = new TextTexture('welcome to chudville: population you', { fontWeight: 'bold', fontSize: 48 })
+  const text = new TextTexture('some 2d text', { fontWeight: 'bold', fontSize: 48 })
   const sprite = new TextSprite(text)
   const scale = 0.5
   sprite.setScale(scale)
