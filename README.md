@@ -1,5 +1,22 @@
 # 121-Final-Project
 
+## Devlog Entry - 21 November 2025
+
+### How we satisfied the software requirements
+
+1. We are developing our game in TypeScript!
+2. We are using three.js for 3d rendering
+3. We are using ammo.js for physics simulation
+4. Our puzzle requires the player to hit the green button to win. If they hit the wrong one, they lose!
+5. The player is able to control their movement to navigate toward either button
+6. blah
+7. blah
+8. blah
+
+### Reflection
+
+We have updated our devlog entry to reflect the libraries we're currently using-- there was a bit of confusion as to whether three.js was just for 3d rendering or if it also handled physics. Additionally, we are using npm to run the dev server rather than deno which is what we used in our intial build.
+
 ## Devlog Entry - 14 November 2025
 
 ### Introducing the team
