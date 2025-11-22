@@ -1,10 +1,10 @@
-
+/*
 // three.js
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // physics
-import { AmmoPhysics, ExtendedMesh, ExtendedObject3D, PhysicsLoader } from '@enable3d/ammo-physics';
+import { AmmoPhysics, ExtendedMesh, PhysicsLoader } from '@enable3d/ammo-physics';
 
 // CSG
 import { CSG } from '@enable3d/three-graphics/dist/csg';
@@ -44,6 +44,23 @@ const MainScene = () => {
   renderer.autoClear = false;
   document.body.appendChild(renderer.domElement);
 
+  // csg
+  const mat = new THREE.MeshNormalMaterial();
+  const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+  const meshB = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16));
+  meshA.position.set(3, 3, 0);
+  meshB.position.set(3.25, 3.1, 0.4);
+  const meshC_0 = CSG.intersect(meshA, meshB);
+  const meshC_1 = CSG.subtract(meshA, meshB);
+  const meshC_2 = CSG.union(meshA, meshB);
+  meshC_0.material = mat;
+  meshC_1.material = mat;
+  meshC_2.material = mat;
+  meshC_0.position.setX(3);
+  meshC_1.position.setX(5);
+  meshC_2.position.setX(7);
+  scene.add(meshC_0, meshC_1, meshC_2);
+
   // add 2d text
   const text = new TextTexture('welcome to chudville: population you', { fontWeight: 'bold', fontSize: 48 });
   const sprite = new TextSprite(text);
@@ -74,39 +91,59 @@ const MainScene = () => {
   // the factory will make/add object without physics
   const { factory } = physics;
 
+  // blue box
+  physics.add.box({ x: 0.05, y: 10 }, { lambert: { color: 0x2194ce } });
+
   // static ground
   physics.add.ground({ width: 20, height: 20 });
 
-  // player (a box for now)
-  const player = physics.add.box({x:0,y:3,z:0,width:1,height:1,depth:1},{ lambert: { color: 0x00ff00 } });
+  // add a normal sphere using the object factory
+  // (NOTE: This will be factory.add.sphere() in the future)
+  // first parameter is the config for the geometry
+  // second parameter is for the material
+  // you could also add a custom material like so { custom: new THREE.MeshLambertMaterial({ color: 0x00ff00 }) }
+  const greenSphere = factory.add.sphere({ y: 2, z: 5 }, { lambert: { color: 0x00ff00 } });
+  // once the object is created, you can add physics to it
+  physics.add.existing(greenSphere);
 
-  // button creation function
-  const createButton = (x:number,y:number,z:number,triggerEvent:Function) => {
-    let triggered:boolean = false;
+  // green box
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+  const cube = new ExtendedMesh(geometry, material);
+  cube.position.set(0, 5, 0);
+  scene.add(cube);
+  physics.add.existing(cube as any);
+  cube.body.setCollisionFlags(2); // make it kinematic
 
-    const geometry = new THREE.BoxGeometry();
+  // merge children to compound shape
+  const exclamationMark = () => {
     const material = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-    const button = new ExtendedMesh(geometry, material);
 
-    button.position.set(x,y,z);
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.25), material);
+    sphere.position.set(0, -0.8, 0);
 
-    scene.add(button);
-    physics.add.existing(button);
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.8, 0.4), material);
+    cube.position.set(5, 2, 5);
 
-    button.body.on.collision((other: any) => {
-      if (other === player) { if (!triggered)
-        triggerEvent();
-        triggered = true;
-      }
-    });
+    cube.add(sphere);
+    scene.add(cube);
+
+    cube.position.set(5, 5, 5);
+    cube.rotation.set(0, 0.4, 0.2);
+
+    physics.add.existing(cube as any);
   }
-  createButton(0,1,0,()=>{console.log("me when im triggered");});
+  exclamationMark();
 
   // clock
   const clock = new THREE.Clock();
 
   // loop
   const animate = () => {
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    cube.body.needUpdate = true; // this is how you update kinematic bodies
+
     physics.update(clock.getDelta() * 1000);
     physics.updateDebugger();
 
@@ -124,3 +161,4 @@ const MainScene = () => {
 
 // '/ammo' is the folder where all ammo file are
 PhysicsLoader('/ammo', () => MainScene());
+*/
