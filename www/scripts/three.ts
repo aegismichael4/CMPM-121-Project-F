@@ -1,4 +1,3 @@
-
 // three.js
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -6,32 +5,55 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 // physics
 import { AmmoPhysics, ExtendedMesh, ExtendedObject3D, PhysicsLoader } from '@enable3d/ammo-physics';
 
-// CSG
-import { CSG } from '@enable3d/three-graphics/dist/csg';
-
-// Flat
+// flat
 import { TextTexture, TextSprite } from '@enable3d/three-graphics/dist/flat';
-import { VERSION } from 'enable3d';
-
-console.log('Three.js version r' + THREE.REVISION);
-console.log('Enable3d version ' + VERSION);
 
 const MainScene = () => {
+  // colors
+  const YELLOW = 0xffff00;
+  const RED = 0xff0000;
+  const GREEN = 0x00ff00;
+  const BACKGROUND_COLOR = 0xf0f0f0;
+  const GROUND_COLOR = 0x000000;
+
+  // tunable gameplay values
+  const ROTATION_SPEED = .01;
+
+  // control setup
+  const keys: Record<string, boolean> = {};
+  const createKeybinding = (
+    key: string,
+    onKeyDown: () => void,
+    onKeyUp: () => void = () => { }
+  ) => {
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === key && !keys[key]) {
+        onKeyDown();
+        keys[key] = true;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === key) {
+        onKeyUp();
+        keys[key] = false;
+      }
+    });
+  };
+
   // sizes
   const width = window.innerWidth;
   const height = window.innerHeight;
 
   // scene
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
+  scene.background = new THREE.Color(BACKGROUND_COLOR);
 
   // camera
   const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
   camera.position.set(10, 10, 20);
   camera.lookAt(0, 0, 0);
-
-  // you can access Ammo directly if you want
-  // new Ammo.btVector3(1, 2, 3).y()
 
   // 2d camera/2d scene
   const scene2d = new THREE.Scene();
@@ -51,6 +73,14 @@ const MainScene = () => {
   sprite.setScale(scale);
   sprite.setPosition(0 + (text.width * scale) / 2 + 12, height - (text.height * scale) / 2 - 12);
   scene2d.add(sprite);
+
+  const endText = new TextTexture('you win!', { fontWeight: 'bold', fontSize: 48 });
+  const loseTexture = new TextTexture('you lsoe!', { fontWeight: 'bold', fontSize: 48 });
+  const endSprite = new TextSprite(endText);
+  endSprite.setScale(scale);
+  endSprite.setPosition((window.innerWidth / 2), (window.innerHeight / 2));
+  scene2d.add(endSprite);
+  endSprite.visible = false;
 
   // dpr
   const DPR = window.devicePixelRatio;
@@ -75,38 +105,69 @@ const MainScene = () => {
   const { factory } = physics;
 
   // static ground
-  physics.add.ground({ width: 20, height: 20 });
+  const ground = physics.add.box(
+    {
+      x: 0,
+      y: 0,
+      z: 0,
+      width: 20,
+      height: 1,
+      depth: 20
+    },
+    {
+      lambert: { color: GROUND_COLOR },
+      mass: 0
+    }
+  );
+  ground.body.setCollisionFlags(2);
 
-  // player (a box for now)
-  const player = physics.add.box({x:0,y:3,z:0,width:1,height:1,depth:1},{ lambert: { color: 0x00ff00 } });
+  // key creation
+  let delta = [0, 0, 0];
+  createKeybinding('s', () => delta[0] += ROTATION_SPEED, () => delta[0] -= ROTATION_SPEED);
+  createKeybinding('w', () => delta[0] -= ROTATION_SPEED, () => delta[0] += ROTATION_SPEED);
+  createKeybinding('d', () => delta[1] -= ROTATION_SPEED, () => delta[1] += ROTATION_SPEED);
+  createKeybinding('a', () => delta[1] += ROTATION_SPEED, () => delta[1] -= ROTATION_SPEED);
+
+  // rolling ball
+  const ball = physics.add.sphere({ x: 0, y: 3, z: 0, radius: 1 }, { lambert: { color: YELLOW } });
 
   // button creation function
-  const createButton = (x:number,y:number,z:number,triggerEvent:Function) => {
-    let triggered:boolean = false;
+  const createButton = (x: number, y: number, z: number, color: THREE.ColorRepresentation, triggerEvent: Function) => {
+    let triggered: boolean = false;
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-    const button = new ExtendedMesh(geometry, material);
-
-    button.position.set(x,y,z);
-
-    scene.add(button);
-    physics.add.existing(button);
+    const button = physics.add.box(
+      { x: x, y: y, z: z, width: 1, height: 0.3, depth: 1 },
+      { lambert: { color: color } }
+    );
 
     button.body.on.collision((other: any) => {
-      if (other === player) { if (!triggered)
-        triggerEvent();
+      if (other === ball) {
+        if (!triggered)
+          triggerEvent();
         triggered = true;
       }
     });
+    return button;
   }
-  createButton(0,1,0,()=>{console.log("me when im triggered");});
+
+  // button creation
+  const winButton = createButton(-5, 1, 0, GREEN, () => {
+    endSprite.visible = true;
+  });
+  const loseButton = createButton(5, 1, 0, RED, () => {
+    endSprite.setTexture(loseTexture);
+    endSprite.visible = true;
+  });
 
   // clock
   const clock = new THREE.Clock();
 
   // loop
   const animate = () => {
+    ground.rotation.x += delta[0];
+    ground.rotation.z += delta[1];
+    console.log(delta[1]);
+    ground.body.needUpdate = true;
     physics.update(clock.getDelta() * 1000);
     physics.updateDebugger();
 
