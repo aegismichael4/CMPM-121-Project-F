@@ -9,8 +9,8 @@ export const PLAYER_COLOR = 0xcde01f;
 
 // tunable gameplay values
 export const MOVE_SPEED = 3;
-const ROTATION_SPEED = .01;
-export const MAX_ROTATION = Math.PI / 6;
+const ROTATION_SPEED = .005;
+export const MAX_ROTATION = Math.PI / 20;
 
 // control setup
 export const delta = { x: 0, z: 0, del: 1 };

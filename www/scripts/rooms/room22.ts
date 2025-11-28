@@ -13,6 +13,7 @@ import * as ThreeUtils from '../threeUtils';
 export const Room22Scene = () => {
     // colors
     const YELLOW = 0xffff00;
+    const GREEN = 0x449944;
 
     // scene
     const scene = new THREE.Scene();
@@ -87,8 +88,8 @@ export const Room22Scene = () => {
                         collisionFlags: 1
                     },
                     {
-                        lambert: { color: "rgba(73, 157, 73, 1)" },
-                        mass: 0
+                        lambert: { color: GREEN },
+                        mass: 1
                     }
                 );
                 ground.add(newCell);
@@ -97,11 +98,29 @@ export const Room22Scene = () => {
     }
 
     // rolling ball
-    const ball = physics.add.sphere({ x: 0, y: 3, z: 0, radius: 0.3 }, { lambert: { color: YELLOW } });
+    let ball = physics.add.sphere({ x: 0, y: 1.2, z: 0, radius: 0.3 }, { lambert: { color: YELLOW } });
 
     const updateRotation = () => {
         ground.rotation.x = Math.max(-Global.MAX_ROTATION, Math.min(Global.MAX_ROTATION, ground.rotation.x + Global.delta.z));
-        ground.rotation.z = Math.max(-Global.MAX_ROTATION, Math.min(Global.MAX_ROTATION, ground.rotation.z + Global.delta.x));
+        ground.rotation.z = Math.max(-Global.MAX_ROTATION, Math.min(Global.MAX_ROTATION, ground.rotation.z - Global.delta.x));
+    }
+
+    let lastBallPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+    // prevents clipping
+    const limitBallSpeed = (deltaTime: number) => {
+        let ballPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+        ball.getWorldPosition(ballPos);
+
+        const ballSpeed = Math.abs(lastBallPos.length() - ballPos.length()) * deltaTime;
+        console.log(ballSpeed);
+
+        if (ballSpeed > .2) {
+            //physics.destroy(ball);
+            //ball.removeFromParent();
+            //ball = physics.add.sphere({ x: 0, y: 1.2, z: 0, radius: 0.3 }, { lambert: { color: YELLOW } });
+        }
+
+        lastBallPos = ballPos;
     }
 
     const createHand = (hand: "left" | "right") => {
@@ -138,10 +157,13 @@ export const Room22Scene = () => {
     }
 
     const sceneUpdate = () => {
+        const deltaTime = clock.getDelta() * 1000;
         updateRotation();
+        limitBallSpeed(deltaTime);
+
         ground.body.needUpdate = true;
 
-        physics.update(clock.getDelta() * 1000);
+        physics.update(deltaTime);
         physics.updateDebugger();
     }
     return { scene, scene2d, sceneUpdate, initialize };
