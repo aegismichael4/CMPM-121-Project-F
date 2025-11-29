@@ -12,6 +12,11 @@ export const MOVE_SPEED = 3;
 const ROTATION_SPEED = .005;
 export const MAX_ROTATION = Math.PI / 15;
 
+// inventory
+export const inventorySlotSize = 100;
+export const inventorySlots = 3;
+export const slotOffset = 10;
+
 // control setup
 export const delta = { x: 0, z: 0, del: 1 };
 export const keys: Record<string, boolean> = {};

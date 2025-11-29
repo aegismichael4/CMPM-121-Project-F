@@ -2,6 +2,8 @@
 import * as Global from './global';
 import { THREE, ExtendedMesh } from 'enable3d'
 import { AmmoPhysics } from '@enable3d/ammo-physics';
+import { ThreeGraphics } from '@enable3d/three-graphics';
+import { DrawSprite } from '@enable3d/three-graphics/dist/flat';
 
 export function movePlayer(player: ExtendedMesh) {
     if (Global.delta.x == 0 && Global.delta.z == 0) {
@@ -55,4 +57,25 @@ export function makePlayer(physics: AmmoPhysics) {
     player.body.setAngularFactor(0, 0, 0);
     player.userData.tag = "player";
     return player;
+}
+
+// draw rectangle function for easy use in drawing inventory
+const drawRectangle = ctx => {
+    const { width } = ctx.canvas;
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(42, 42, 42, 1)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = 5;
+    ctx.rect(0, 0, width, width);
+    ctx.fill();
+    ctx.stroke();
+}
+
+// draw inventory to hud (scene2d) based on global parameters
+export function drawInventory(scene2d: THREE.Scene) {
+    for (let i = 0; i < Global.inventorySlots; i++) {
+        const inventorySlot = new DrawSprite(Global.inventorySlotSize, Global.inventorySlotSize, drawRectangle);
+        inventorySlot.setPosition(window.innerWidth - Global.slotOffset - (Global.inventorySlotSize/2) - ((Global.inventorySlotSize + Global.slotOffset) * i), (Global.inventorySlotSize / 2) + Global.slotOffset);
+        scene2d.add(inventorySlot);
+    }
 }

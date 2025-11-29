@@ -28,25 +28,7 @@ export const Room11Scene = () => {
     sprite.setPosition(0 + (text.width * scale) / 2 + 12, window.innerHeight - (text.height * scale) / 2 - 12);
     scene2d.add(sprite);
 
-    const drawRectangle = ctx => {
-        const { width } = ctx.canvas;
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(42, 42, 42, 1)';
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.lineWidth = 5;
-        ctx.rect(0, 0, width, width);
-        ctx.fill();
-        ctx.stroke();
-    }
-
-    const inventorySlotSize = 100;
-    const inventorySlots = 3;
-    const slotOffset = 10;
-    for (let i = 0; i < inventorySlots; i++) {
-        const inventorySlot = new DrawSprite(inventorySlotSize, inventorySlotSize, drawRectangle);
-        inventorySlot.setPosition(window.innerWidth - slotOffset - (inventorySlotSize/2) - ((inventorySlotSize + slotOffset) * i), (inventorySlotSize / 2) + slotOffset);
-        scene2d.add(inventorySlot);
-    }
+    ThreeUtils.drawInventory(scene2d);
 
     // light
     scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 1));

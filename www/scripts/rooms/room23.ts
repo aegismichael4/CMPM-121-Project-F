@@ -19,7 +19,7 @@ export const Room23Scene = () => {
     const scene2d = new THREE.Scene();
 
     /** ADD HUD TEXT ETC HERE */
-
+    ThreeUtils.drawInventory(scene2d);
 
     // light
     scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 1));
