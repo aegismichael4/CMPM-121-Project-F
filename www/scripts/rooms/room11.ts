@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { AmmoPhysics, ExtendedMesh } from '@enable3d/ammo-physics';
 
 // flat
-import { TextTexture, TextSprite } from '@enable3d/three-graphics/dist/flat';
+import { TextTexture, TextSprite, DrawSprite } from '@enable3d/three-graphics/dist/flat';
 
 import * as Global from '../global';
 import * as ThreeUtils from '../threeUtils';
@@ -20,6 +20,33 @@ export const Room11Scene = () => {
 
     /** ADD HUD TEXT ETC HERE */
 
+    // add 2d text
+    const text = new TextTexture('welcome to chudville, population: you', { fontWeight: 'bold', fontSize: 48 });
+    const sprite = new TextSprite(text);
+    const scale = 0.5;
+    sprite.setScale(scale);
+    sprite.setPosition(0 + (text.width * scale) / 2 + 12, window.innerHeight - (text.height * scale) / 2 - 12);
+    scene2d.add(sprite);
+
+    const drawRectangle = ctx => {
+        const { width } = ctx.canvas;
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(42, 42, 42, 1)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.lineWidth = 5;
+        ctx.rect(0, 0, width, width);
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    const inventorySlotSize = 100;
+    const inventorySlots = 3;
+    const slotOffset = 10;
+    for (let i = 0; i < inventorySlots; i++) {
+        const inventorySlot = new DrawSprite(inventorySlotSize, inventorySlotSize, drawRectangle);
+        inventorySlot.setPosition(window.innerWidth - slotOffset - (inventorySlotSize/2) - ((inventorySlotSize + slotOffset) * i), (inventorySlotSize / 2) + slotOffset);
+        scene2d.add(inventorySlot);
+    }
 
     // light
     scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 1));
