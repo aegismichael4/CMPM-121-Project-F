@@ -3,7 +3,6 @@
   "version": "2.0.0",
   "description": "",
   "main": "index.js",
-  "homepage": "https://aegismichael4.github.io/CMPM-121-Project-F/",
   "scripts": {
     "start": "npm run bundle && npm-run-all --parallel webpack serve",
     "build": "npm run bundle",
@@ -15,8 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "enable3d": "^0.26.1",
-    "gh-pages": "^6.3.0"
+    "enable3d": "^0.26.1"
   },
   "devDependencies": {
     "five-server": "^0.4.1",
