@@ -9,30 +9,28 @@ import { AmmoPhysics, PhysicsLoader } from '@enable3d/ammo-physics';
 import { TextTexture, TextSprite } from '@enable3d/three-graphics/dist/flat';
 
 import * as Global from './global';
+import * as ThreeUtils from './threeUtils';
 import { Room11Scene } from './rooms/room11';
 import { Room22Scene } from './rooms/room22';
 import { Room23Scene } from './rooms/room23';
 
-let currentScene: { scene: THREE.Scene, scene2d: THREE.Scene, sceneUpdate: () => void, initialize: () => void };
+let currentScene: { scene: THREE.Scene, sceneUpdate: () => void, initialize: () => void };
 let scenes: Record<string, any>;
 
 const MasterScene = () => {
-    // sizes
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
     // camera
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(50, Global.width / Global.height, 0.1, 1000);
     camera.position.set(0, 15, 20);
     camera.lookAt(0, 0, 0);
 
     // HUD
-    const camera2d = new THREE.OrthographicCamera(0, width, height, 0, 1, 1000);
+    const camera2d = new THREE.OrthographicCamera(0, Global.width, Global.height, 0, 1, 1000);
     camera2d.position.setZ(10);
+    ThreeUtils.drawInventory();
 
     // renderer
     const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(width, height);
+    renderer.setSize(Global.width, Global.height);
     renderer.autoClear = false;
     document.body.appendChild(renderer.domElement);
 
@@ -57,7 +55,7 @@ const MasterScene = () => {
         renderer.clear();
         renderer.render(currentScene.scene, camera);
         renderer.clearDepth();
-        renderer.render(currentScene.scene2d, camera2d);
+        renderer.render(Global.scene2d, camera2d);
 
         requestAnimationFrame(animate);
     }

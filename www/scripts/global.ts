@@ -1,5 +1,12 @@
 import * as THREE from 'three';
 
+// sizes
+export const width = window.innerWidth;
+export const height = window.innerHeight;
+
+// HUD SCENE (shared across all scenes)
+export const scene2d = new THREE.Scene();
+
 // colors
 export const BACKGROUND_COLOR = 0xf0f0f0;
 export const WALL_COLOR = 0x4b9963;

@@ -74,12 +74,12 @@ const drawRectangle = ctx => {
 }
 
 // draw inventory to hud (scene2d) based on global parameters
-export function drawInventory(scene2d: THREE.Scene) {
+export function drawInventory() {
     for (let i = 0; i < Global.inventorySlots; i++) {
         const inventorySlot = new DrawSprite(Global.inventorySlotSize, Global.inventorySlotSize, drawRectangle);
         const inventoryPos = inventoryIndexToScreenPos(i);
-        inventorySlot.setPosition(inventoryPos.x,inventoryPos.y);
-        scene2d.add(inventorySlot);
+        inventorySlot.setPosition(inventoryPos.x, inventoryPos.y);
+        Global.scene2d.add(inventorySlot);
     }
 }
 
@@ -91,14 +91,15 @@ export function collected(collectible: ExtendedMesh) {
     return collectible.userData.collected;
 }
 
-export function createCollectible(collectible: ExtendedMesh, physics: AmmoPhysics, scene2d: THREE.Scene, onCollect: Function = () => {}, radius: number = 1) {
+export function createCollectible(collectible: ExtendedMesh, physics: AmmoPhysics, onCollect: Function = () => { }, radius: number = 1) {
     collectible.userData.tag = Global.collectibleTag;
     collectible.userData.collected = false;
-    const trigger = physics.add.sphere({ x: 0, y:0, z:0, radius: radius, collisionFlags: 6 });
+    const trigger = physics.add.sphere({ x: 0, y: 0, z: 0, radius: radius, collisionFlags: 6 });
+    trigger.visible = false;
     trigger.body.on.collision((other: any) => {
         if (compareTag(other.userData.tag, Global.playerTag) && Global.getInteract() && !collected(collectible)) {
             onCollect();
-            addToInventory(collectible, scene2d);
+            addToInventory(collectible);
         }
     });
 
@@ -109,7 +110,7 @@ export function createCollectible(collectible: ExtendedMesh, physics: AmmoPhysic
     return triggerUpdate;
 }
 
-export function addToInventory(collectible: ExtendedMesh, scene2d: THREE.Scene) {
+export function addToInventory(collectible: ExtendedMesh) {
     for (let i = 0; i < Global.inventorySlots; i++) {
         if (Global.INVENTORY[i] == null) {
             collectible.userData.collected = true;
@@ -122,8 +123,8 @@ export function addToInventory(collectible: ExtendedMesh, scene2d: THREE.Scene) 
 
             const inventoryPos = inventoryIndexToScreenPos(i);
             const inventorySlot = new DrawSprite(50, 50, drawRectangle);
-            inventorySlot.setPosition(inventoryPos.x,inventoryPos.y);
-            scene2d.add(inventorySlot);
+            inventorySlot.setPosition(inventoryPos.x, inventoryPos.y);
+            Global.scene2d.add(inventorySlot);
             Global.INVENTORY[i] = "unga bunga";
             return;
         }
@@ -131,5 +132,5 @@ export function addToInventory(collectible: ExtendedMesh, scene2d: THREE.Scene) 
 }
 
 function inventoryIndexToScreenPos(i: number) {
-    return {x: window.innerWidth - Global.slotOffset - (Global.inventorySlotSize / 2) - ((Global.inventorySlotSize + Global.slotOffset) * i), y:(Global.inventorySlotSize / 2) + Global.slotOffset};
+    return { x: window.innerWidth - Global.slotOffset - (Global.inventorySlotSize / 2) - ((Global.inventorySlotSize + Global.slotOffset) * i), y: (Global.inventorySlotSize / 2) + Global.slotOffset };
 }

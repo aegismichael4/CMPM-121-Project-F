@@ -15,12 +15,6 @@ export const Room11Scene = () => {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(Global.BACKGROUND_COLOR);
 
-    // HUD
-    const scene2d = new THREE.Scene();
-
-    /** ADD HUD TEXT ETC HERE */
-    ThreeUtils.drawInventory(scene2d);
-
     // light
     scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 1));
     scene.add(new THREE.AmbientLight(0x666666));
@@ -38,10 +32,7 @@ export const Room11Scene = () => {
     ThreeUtils.makeDoor(0, 2, -10, 90, physics, "room23", Global.BLUE);
 
     const ball = physics.add.sphere({ x: 0, y: 1.2, z: 0, radius: 0.4 }, { lambert: { color: Global.YELLOW } });
-    const triggerUpdate = ThreeUtils.createCollectible(ball,physics,scene2d);
-
-    const ball1 = physics.add.sphere({ x: 5, y: 1.2, z: 0, radius: 0.4 }, { lambert: { color: Global.YELLOW } });
-    const triggerUpdate1 = ThreeUtils.createCollectible(ball1,physics,scene2d);
+    const triggerUpdate = ThreeUtils.createCollectible(ball,physics);
 
     // clock
     const clock = new THREE.Clock();
@@ -57,10 +48,9 @@ export const Room11Scene = () => {
     const sceneUpdate = () => {
         ThreeUtils.movePlayer(player);
         triggerUpdate();
-        triggerUpdate1();
 
         physics.update(clock.getDelta() * 1000);
         physics.updateDebugger();
     }
-    return { scene, scene2d, sceneUpdate, initialize };
+    return { scene, sceneUpdate, initialize };
 }

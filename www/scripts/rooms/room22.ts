@@ -15,12 +15,6 @@ export const Room22Scene = () => {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(Global.BACKGROUND_COLOR);
 
-    // HUD
-    const scene2d = new THREE.Scene();
-
-    /** ADD HUD TEXT ETC HERE */
-
-
     // light
     scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 1));
     scene.add(new THREE.AmbientLight(0x666666));
@@ -160,5 +154,5 @@ export const Room22Scene = () => {
         physics.update(deltaTime);
         physics.updateDebugger();
     }
-    return { scene, scene2d, sceneUpdate, initialize };
+    return { scene, sceneUpdate, initialize };
 }
