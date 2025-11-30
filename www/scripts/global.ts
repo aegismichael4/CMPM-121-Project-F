@@ -17,6 +17,8 @@ export const PLAYER_COLOR = 0xcde01f;
 export const BLUE = 0x4782b3;
 export const YELLOW = 0xffff00;
 export const GREEN = 0x449944;
+export const PUZZLE_COLOR = 0x36291e;
+export const PUZZLE_WALL_COLOR = 0x47382a;
 
 // tags
 export const playerTag = "player";

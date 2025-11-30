@@ -5,6 +5,7 @@ import { THREE, ExtendedMesh } from 'enable3d'
 import { AmmoPhysics } from '@enable3d/ammo-physics';
 import { ThreeGraphics } from '@enable3d/three-graphics';
 import { DrawSprite } from '@enable3d/three-graphics/dist/flat';
+import Factories from '@enable3d/common/dist/factories';
 
 export function movePlayer(player: ExtendedMesh) {
     if (delta.x == 0 && delta.z == 0) {
@@ -85,7 +86,7 @@ export function drawSlot(strokeStyle, fillStyle, i: number) {
 // draw inventory to hud (scene2d) based on global parameters
 export function drawInventory() {
     for (let i = 0; i < Global.inventorySlots; i++) {
-        drawSlot('rgba(42, 42, 42, 1)', 'rgba(0,0,0,0.2)',i);
+        drawSlot('rgba(42, 42, 42, 1)', 'rgba(0,0,0,0.2)', i);
     }
 }
 
@@ -127,7 +128,7 @@ export function addToInventory(collectible: ExtendedMesh) {
             collectible.position.z = -100;
             collectible.body.needUpdate = true;
 
-            const item = drawSlot('rgba(42, 42, 42, 1)', 'rgba(0,0,0,0.2)',i);
+            const item = drawSlot('rgba(42, 42, 42, 1)', 'rgba(0,0,0,0.2)', i);
             Global.INVENTORY[i] = "unga bunga";
             return;
         }
@@ -135,15 +136,50 @@ export function addToInventory(collectible: ExtendedMesh) {
 }
 
 function inventoryIndexToScreenPos(i: number) {
-    const visualI = Global.inventorySlots-i - 1;
+    const visualI = Global.inventorySlots - i - 1;
     return { x: window.innerWidth - Global.slotOffset - (Global.inventorySlotSize / 2) - ((Global.inventorySlotSize + Global.slotOffset) * visualI), y: (Global.inventorySlotSize / 2) + Global.slotOffset };
 }
 
 // inventory selector (which item is selected)
-const inventorySelector = drawSlot('rgba(21, 58, 31, 1)', 'rgba(255, 255, 255, 0)',0);
+const inventorySelector = drawSlot('rgba(21, 58, 31, 1)', 'rgba(255, 255, 255, 0)', 0);
 
 export function moveInventorySelector(i: number) {
     // shifts from r->l inventory to l->r
     const inventoryPos = inventoryIndexToScreenPos(i);
     inventorySelector.setPosition(inventoryPos.x, inventoryPos.y);
+}
+
+export function makePuzzle(x: number, y: number, z: number, physics: AmmoPhysics) {
+    const puzzle = physics.add.box({ x: x, y: y, z: z, width: 1, depth: 1, height: .2 }, { lambert: { color: Global.PUZZLE_COLOR } });
+    const triggerUpdate = createCollectible(puzzle, physics, () => {
+        Global.setCurrentScene("room22");
+    });
+    return triggerUpdate;
+}
+
+export function createHand(x: number, y: number, z: number, hand: "left" | "right", ground: ExtendedMesh, factory: Factories) {
+    const dir = hand === "left" ? -1 : 1;
+
+    const segments = [
+        { name: "thumb",   offsetX: 0,      offsetY: 0.25, offsetZ: 1.5,  length: 2,   rotationX: -Math.PI / 2, rotationZ: Math.PI / 3 * dir },
+        { name: "pointer", offsetX: 0.5,    offsetY: 0.5,  offsetZ: 0.25, length: 3,   rotationX: -Math.PI / 3, rotationZ: Math.PI / 10 * dir },
+        { name: "middle",  offsetX: 1.25,   offsetY: 0,    offsetZ: 0,    length: 3.5, rotationX: -Math.PI / 2, rotationZ: 0 },
+        { name: "pinky",   offsetX: 1.25,   offsetY: -1,   offsetZ: 0.25, length: 3,   rotationX: -2 * Math.PI / 3, rotationZ: 0 },
+        { name: "arm",     offsetX: 1,      offsetY: 0,    offsetZ: 6.75, length: 10,  rotationX: -Math.PI / 2, rotationZ: 0 },
+    ];
+
+    for (const segment of segments) {
+        const capsule = factory.add.capsule({
+            x: x + segment.offsetX * dir,
+            y: y + segment.offsetY,
+            z: z + segment.offsetZ,
+            length: segment.length,
+            radius: 1
+        }, { lambert: { color: Global.PLAYER_COLOR } });
+
+        capsule.rotation.x = segment.rotationX;
+        capsule.rotation.z = segment.rotationZ;
+
+        ground.add(capsule);
+    }
 }

@@ -29,6 +29,7 @@ export const Room23Scene = () => {
 
     ThreeUtils.makeRoom(physics);
     ThreeUtils.makeDoor(-10, 2, 0, 0, physics, "room11");
+    const puzzleUpdate = ThreeUtils.makePuzzle(3,0,3,physics);
 
     // clock
     const clock = new THREE.Clock();
@@ -43,6 +44,7 @@ export const Room23Scene = () => {
 
     const sceneUpdate = () => {
         ThreeUtils.movePlayer(player);
+        puzzleUpdate();
 
         physics.update(clock.getDelta() * 1000);
         physics.updateDebugger();
