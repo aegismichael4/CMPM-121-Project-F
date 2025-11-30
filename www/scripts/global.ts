@@ -23,10 +23,17 @@ export const MAX_ROTATION = Math.PI / 15;
 export const inventorySlotSize = 100;
 export const inventorySlots = 3;
 export const slotOffset = 10;
+export const INVENTORY: (string | null)[] = Array(inventorySlots).fill(null);
 
 // control setup
 export const delta = { x: 0, z: 0, del: 1 };
 export const keys: Record<string, boolean> = {};
+let interact: boolean = false;
+
+// global getter to see if player is holding interact key
+export function getInteract() {
+    return interact;
+}
 
 const createKeybinding = (
     key: string,
@@ -89,3 +96,6 @@ createKeybinding('d', () => delta.x += delta.del, () => delta.x -= delta.del);
 createKeybinding('a', () => delta.x -= delta.del, () => delta.x += delta.del);
 createKeybinding('w', () => delta.z -= delta.del, () => delta.z += delta.del);
 createKeybinding('s', () => delta.z += delta.del, () => delta.z -= delta.del);
+
+// PICKUP
+createKeybinding('e', () => { interact = true;}, () => { interact = false;});

@@ -77,11 +77,59 @@ const drawRectangle = ctx => {
 export function drawInventory(scene2d: THREE.Scene) {
     for (let i = 0; i < Global.inventorySlots; i++) {
         const inventorySlot = new DrawSprite(Global.inventorySlotSize, Global.inventorySlotSize, drawRectangle);
-        inventorySlot.setPosition(window.innerWidth - Global.slotOffset - (Global.inventorySlotSize / 2) - ((Global.inventorySlotSize + Global.slotOffset) * i), (Global.inventorySlotSize / 2) + Global.slotOffset);
+        const inventoryPos = inventoryIndexToScreenPos(i);
+        inventorySlot.setPosition(inventoryPos.x,inventoryPos.y);
         scene2d.add(inventorySlot);
     }
 }
 
 export function compareTag(tag: string, otherTag: string) {
     return tag == otherTag;
+}
+
+export function collected(collectible: ExtendedMesh) {
+    return collectible.userData.collected;
+}
+
+export function createCollectible(collectible: ExtendedMesh, physics: AmmoPhysics, scene2d: THREE.Scene, onCollect: Function = () => {}, radius: number = 1) {
+    collectible.userData.tag = Global.collectibleTag;
+    collectible.userData.collected = false;
+    const trigger = physics.add.sphere({ x: 0, y:0, z:0, radius: radius, collisionFlags: 6 });
+    trigger.body.on.collision((other: any) => {
+        if (compareTag(other.userData.tag, Global.playerTag) && Global.getInteract() && !collected(collectible)) {
+            onCollect();
+            addToInventory(collectible, scene2d);
+        }
+    });
+
+    const triggerUpdate = () => {
+        trigger.position.copy(collectible.position);
+        trigger.body.needUpdate = true;
+    }
+    return triggerUpdate;
+}
+
+export function addToInventory(collectible: ExtendedMesh, scene2d: THREE.Scene) {
+    for (let i = 0; i < Global.inventorySlots; i++) {
+        if (Global.INVENTORY[i] == null) {
+            collectible.userData.collected = true;
+
+            collectible.visible = false;
+            collectible.body.setCollisionFlags(2);
+            collectible.position.x = -100;
+            collectible.position.z = -100;
+            collectible.body.needUpdate = true;
+
+            const inventoryPos = inventoryIndexToScreenPos(i);
+            const inventorySlot = new DrawSprite(50, 50, drawRectangle);
+            inventorySlot.setPosition(inventoryPos.x,inventoryPos.y);
+            scene2d.add(inventorySlot);
+            Global.INVENTORY[i] = "unga bunga";
+            return;
+        }
+    }
+}
+
+function inventoryIndexToScreenPos(i: number) {
+    return {x: window.innerWidth - Global.slotOffset - (Global.inventorySlotSize / 2) - ((Global.inventorySlotSize + Global.slotOffset) * i), y:(Global.inventorySlotSize / 2) + Global.slotOffset};
 }

@@ -37,8 +37,11 @@ export const Room11Scene = () => {
     // EXIT DOOR
     ThreeUtils.makeDoor(0, 2, -10, 90, physics, "room23", Global.BLUE);
 
-    let ball = physics.add.sphere({ x: 0, y: 1.2, z: 0, radius: 0.4 }, { lambert: { color: Global.YELLOW } });
-    ball.userData.tag = Global.collectibleTag;
+    const ball = physics.add.sphere({ x: 0, y: 1.2, z: 0, radius: 0.4 }, { lambert: { color: Global.YELLOW } });
+    const triggerUpdate = ThreeUtils.createCollectible(ball,physics,scene2d);
+
+    const ball1 = physics.add.sphere({ x: 5, y: 1.2, z: 0, radius: 0.4 }, { lambert: { color: Global.YELLOW } });
+    const triggerUpdate1 = ThreeUtils.createCollectible(ball1,physics,scene2d);
 
     // clock
     const clock = new THREE.Clock();
@@ -53,6 +56,8 @@ export const Room11Scene = () => {
 
     const sceneUpdate = () => {
         ThreeUtils.movePlayer(player);
+        triggerUpdate();
+        triggerUpdate1();
 
         physics.update(clock.getDelta() * 1000);
         physics.updateDebugger();
